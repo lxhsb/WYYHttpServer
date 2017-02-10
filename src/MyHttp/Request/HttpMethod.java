@@ -14,11 +14,12 @@ public enum HttpMethod {
     GET, POST;//将来可以扩充更多的类型
 
     public static HttpMethod Parse(String method) throws MethodNotAllowException {
-        switch (method.toLowerCase()) {
+        switch (method.toUpperCase()) {
             case "GET":
                 return GET;
             case "POST":
                 return POST;
+
         }
         throw new MethodNotAllowException();
     }
