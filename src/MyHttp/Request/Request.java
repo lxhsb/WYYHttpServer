@@ -5,6 +5,7 @@ import MyHttp.Header.Headers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.Vector;
 
 /**
@@ -21,7 +22,6 @@ public class Request
 	public Request()
 	{
 	}
-
 	public HttpMethod getHttpMethod()
 	{
 		return httpMethod;
@@ -82,9 +82,12 @@ public class Request
 		init headers
 		 */
 		Vector<String> lines = new Vector<>();
-		while ((line = input.readLine()) != null)
+		while (input.ready())
 		{
-			System.out.println(index + " : " + line);
+			line = input.readLine();
+			if (line.length() == 0)
+				break;
+			System.out.println(++index + " : " + line);
 			if (index == 0)
 			{
 				String propers[] = line.split(" ");
@@ -94,14 +97,8 @@ public class Request
 			}
 			else
 			{
-				if (line.length() == 0)
-					break;
-				else
-				{
-					lines.add(line);
-				}
+				lines.add(line);
 			}
-			index++;
 		}
 		this.headers = new Headers(lines);
 		System.out.println("init request headers finish ");
@@ -110,12 +107,10 @@ public class Request
 		going to init request body
 		 */
 		bodyLines = new Vector<>();
-
-		line = input.readLine();
-		while (line!=null&&line.length()!=0)
-		{
-			bodyLines.add(line);
+		while (input.ready()){
 			line = input.readLine();
+			System.out.println(++index + " : " + line);
+			bodyLines.add(line);
 		}
 		System.out.println("init request body finish ");
 		/*

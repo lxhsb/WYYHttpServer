@@ -15,6 +15,8 @@ public class Response
 	private String version;
 	private HttpCode code ;
 
+	public static final String DEFAULTVERSION = "HTTP/1.1";
+
 	public HttpCode getCode()
 	{
 		return code;
@@ -61,7 +63,7 @@ public class Response
 	public Response(){
 		headers = new Headers();
 		httpBaseBody = new HttpBaseBody();
-		version = "";
+		version = DEFAULTVERSION;
 		code = new HttpCode(0,"");
 
 	}
