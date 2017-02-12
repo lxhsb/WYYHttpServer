@@ -15,7 +15,7 @@ public class Response
 	private String version;
 	private HttpCode code ;
 
-	public static final String DEFAULTVERSION = "HTTP/1.1";
+	public static final String DEFAULT_VERSION = "HTTP/1.1";
 
 	public HttpCode getCode()
 	{
@@ -56,14 +56,10 @@ public class Response
 	{
 		this.version = version;
 	}
-
-
-
-
 	public Response(){
 		headers = new Headers();
 		httpBaseBody = new BaseHttpBody();
-		version = DEFAULTVERSION;
+		version = DEFAULT_VERSION;
 		code = new HttpCode(0,"");
 
 	}
@@ -77,10 +73,21 @@ public class Response
 		headers.put("Content-Length",new Header("Content-Length",String.valueOf(httpBaseBody.getContentLength())));
 
 	}
+	public Response(String _version,HttpCode _code ,BaseHttpBody _httpBaseBody)
+	{
+		this.version = _version;
+		this.headers = new Headers();
+		this.httpBaseBody = _httpBaseBody;
+		this.code = _code;
+		headers.put("Content-Type",new Header("Content-Type",httpBaseBody.getContentType()));
+		headers.put("Content-Length",new Header("Content-Length",String.valueOf(httpBaseBody.getContentLength())));
+
+	}
 
 	public String toString()
 	{
 		String ans = version +" "+code.getCode()+" "+ code.getMessage() +"\r\n"+headers.toString()+"\r\n"+httpBaseBody.toString();
+
 		return ans ;
 
 	}

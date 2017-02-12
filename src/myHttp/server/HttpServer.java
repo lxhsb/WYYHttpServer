@@ -1,5 +1,7 @@
 package myHttp.server;
 
+import myHttp.exception.*;
+import myHttp.handler.StaticFileHandler;
 import myHttp.header.Headers;
 import myHttp.request.Request;
 import myHttp.response.body.PlainTextBody;
@@ -18,32 +20,66 @@ public class HttpServer
 	public HttpServer(int port) throws IOException
 	{
 		ServerSocket serverSocket = new ServerSocket(port);
-
-		Socket socket = serverSocket.accept();
-
-		BufferedReader input = new BufferedReader(
-				new InputStreamReader(socket.getInputStream()));
-
-
-		BufferedWriter output = new BufferedWriter(
-				new OutputStreamWriter(socket.getOutputStream()));
-
-
-		try
+		while (true)
 		{
-			Request req = new Request(input);
-			PlainTextBody plainTextBody = new PlainTextBody("hello world");
-			Response rep = new Response(Response.DEFAULTVERSION, HttpCode.OK,new Headers(),plainTextBody);
-			output.write(rep.toString());
-			output.flush();
-			input.close();
-			output.close();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
+			Socket socket = serverSocket.accept();
+
+			BufferedReader input = new BufferedReader(
+					new InputStreamReader(socket.getInputStream()));
+
+			BufferedWriter output = new BufferedWriter(
+					new OutputStreamWriter(socket.getOutputStream()));
+
+			Response rep = null;
+			StaticFileHandler staticFileHandler = new StaticFileHandler();
+			try
+			{
+				Request req = new Request(input);
+				rep = staticFileHandler.doWithRequest(req);
+				System.out.print(rep.getHeaders().toString());
+			}
+			catch (MethodNotAllowException e)
+			{
+				rep = new Response(Response.DEFAULT_VERSION,
+						HttpCode.METHODNOTALLOW,
+						new PlainTextBody("Method Not Allow"));
+			}
+			catch (myHttp.exception.FileNotFoundException e)
+			{
+				//System.out.println("发现问题,文件不存在");
+				rep = new Response(Response.DEFAULT_VERSION,
+						HttpCode.FILENOTFOUND,
+						new PlainTextBody("File Not Found "));
+			}
+			catch (IOException e)
+			{
+				rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
+						new PlainTextBody(e.toString()));
+
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
+						new PlainTextBody(e.toString()));
+			}
+			finally
+			{
+				try
+				{
+					output.write(rep.toString());
+					output.flush();
+					input.close();
+					output.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+
+			}
+
 		}
-
-
 
 	}
 }

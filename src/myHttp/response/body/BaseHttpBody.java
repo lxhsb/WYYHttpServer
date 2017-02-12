@@ -37,6 +37,7 @@ public class BaseHttpBody
 	public void setContent(String content)
 	{
 		Content = content;
+		setContentLength(content.getBytes().length);
 	}
 
 	public BaseHttpBody()

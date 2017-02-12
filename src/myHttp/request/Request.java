@@ -86,8 +86,10 @@ public class Request
 			line = input.readLine();
 			if (line.length() == 0)
 				break;
-			System.out.println(++index + " : " + line);
-			if (index == 0)
+			//System.out.println(++index + " : " + line);
+			++index ;
+			//System.out.println(index + " : " + line);
+			if (index == 1)
 			{
 				String propers[] = line.split(" ");
 				this.httpMethod = HttpMethodEnum.Parse(propers[0]);
@@ -100,7 +102,7 @@ public class Request
 			}
 		}
 		this.headers = new Headers(lines);
-		System.out.println("init request headers finish ");
+		//System.out.println("init request headers finish ");
 		/*
 		init headers finish
 		going to init request body
@@ -111,10 +113,11 @@ public class Request
 			System.out.println(++index + " : " + line);
 			bodyLines.add(line);
 		}
-		System.out.println("init request body finish ");
+		//System.out.println("init request body finish ");
 		/*
 		init request body finish
 		 */
+		//System.out.println("version = "+version+ " path = "+path +" method = "+httpMethod);
 
 
 

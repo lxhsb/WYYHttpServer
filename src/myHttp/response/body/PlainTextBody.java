@@ -9,10 +9,12 @@ public class PlainTextBody extends BaseHttpBody
 	{
 		super();
 		setContentType("text/plain");
+
 	}
 	public PlainTextBody(String _Content)
 	{
 		super("text/plain",_Content);
+
 	}
 
 }
