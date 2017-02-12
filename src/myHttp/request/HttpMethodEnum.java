@@ -1,19 +1,20 @@
-package MyHttp.Request;
+package myHttp.request;
 
-import MyHttp.Exception.MethodNotAllowException;
+import myHttp.exception.MethodNotAllowException;
 
 
 /**
  * Created by wyy on 17-2-9.
  */
-public enum HttpMethod {
+public enum HttpMethodEnum
+{
     /*
      todo
     先完成get
      */
     GET, POST;//将来可以扩充更多的类型
 
-    public static HttpMethod Parse(String method) throws MethodNotAllowException {
+    public static HttpMethodEnum Parse(String method) throws MethodNotAllowException {
         switch (method.toUpperCase()) {
             case "GET":
                 return GET;

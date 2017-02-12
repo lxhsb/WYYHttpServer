@@ -1,9 +1,9 @@
-package MyHttp.Response.Body;
+package myHttp.response.body;
 
 /**
  * Created by wyy on 17-2-10.
  */
-public class HttpBaseBody
+public class BaseHttpBody
 {
 	private String ContentType;
 	private long ContentLength;
@@ -39,11 +39,11 @@ public class HttpBaseBody
 		Content = content;
 	}
 
-	public HttpBaseBody()
+	public BaseHttpBody()
 	{
 	}
 
-	public HttpBaseBody(String _ContentType, String _Content)
+	public BaseHttpBody(String _ContentType, String _Content)
 	{
 		this.Content = _Content;
 		this.ContentType = _ContentType;

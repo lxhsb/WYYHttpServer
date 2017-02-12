@@ -1,6 +1,6 @@
-package Main;
+package main;
 
-import MyHttp.Server.HttpServer;
+import myHttp.server.HttpServer;
 
 import java.io.IOException;
 

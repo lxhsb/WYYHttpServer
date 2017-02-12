@@ -1,4 +1,4 @@
-package MyHttp.Response.Code;
+package myHttp.response.code;
 
 /**
  * Created by wyy on 17-2-10.

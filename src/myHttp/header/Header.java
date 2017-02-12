@@ -1,4 +1,4 @@
-package MyHttp.Header;
+package myHttp.header;
 
 /**
  * Created by wyy on 17-2-9.

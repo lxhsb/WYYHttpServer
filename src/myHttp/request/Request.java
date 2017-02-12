@@ -1,11 +1,10 @@
-package MyHttp.Request;
+package myHttp.request;
 
-import MyHttp.Exception.HttpBaseException;
-import MyHttp.Header.Headers;
+import myHttp.exception.BaseHttpException;
+import myHttp.header.Headers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.Vector;
 
 /**
@@ -13,7 +12,7 @@ import java.util.Vector;
  */
 public class Request
 {
-	private HttpMethod httpMethod;
+	private HttpMethodEnum httpMethod;
 	private String path;
 	private String version;
 	private Headers headers;
@@ -22,12 +21,12 @@ public class Request
 	public Request()
 	{
 	}
-	public HttpMethod getHttpMethod()
+	public HttpMethodEnum getHttpMethod()
 	{
 		return httpMethod;
 	}
 
-	public void setHttpMethod(HttpMethod httpMethod)
+	public void setHttpMethod(HttpMethodEnum httpMethod)
 	{
 		this.httpMethod = httpMethod;
 	}
@@ -73,7 +72,7 @@ public class Request
 	}
 
 	public Request(BufferedReader input)
-			throws IOException, HttpBaseException, Exception
+			throws IOException, BaseHttpException, Exception
 	{//这里可能会出现初始化请求头的各种问题
 
 		String line = null;
@@ -91,7 +90,7 @@ public class Request
 			if (index == 0)
 			{
 				String propers[] = line.split(" ");
-				this.httpMethod = HttpMethod.Parse(propers[0]);
+				this.httpMethod = HttpMethodEnum.Parse(propers[0]);
 				this.path = propers[1];
 				this.version = propers[2];//就正常用户来讲，这里是不会有问题的。如果有问题，直接抛出异常
 			}

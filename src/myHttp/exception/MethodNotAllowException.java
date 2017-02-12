@@ -1,9 +1,9 @@
-package MyHttp.Exception;
+package myHttp.exception;
 
 /**
  * Created by wyy on 17-2-9.
  */
-public class MethodNotAllowException extends HttpBaseException
+public class MethodNotAllowException extends BaseHttpException
 {
 	public MethodNotAllowException()
 	{

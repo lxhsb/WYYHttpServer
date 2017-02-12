@@ -1,9 +1,9 @@
-package MyHttp.Response;
+package myHttp.response;
 
-import MyHttp.Header.Header;
-import MyHttp.Header.Headers;
-import MyHttp.Response.Body.HttpBaseBody;
-import MyHttp.Response.Code.HttpCode;
+import myHttp.header.Header;
+import myHttp.header.Headers;
+import myHttp.response.body.BaseHttpBody;
+import myHttp.response.code.HttpCode;
 
 /**
  * Created by wyy on 17-2-10.
@@ -11,7 +11,7 @@ import MyHttp.Response.Code.HttpCode;
 public class Response
 {
 	private Headers headers;
-	private HttpBaseBody httpBaseBody;
+	private BaseHttpBody httpBaseBody;
 	private String version;
 	private HttpCode code ;
 
@@ -37,12 +37,12 @@ public class Response
 		this.headers = headers;
 	}
 
-	public HttpBaseBody getHttpBaseBody()
+	public BaseHttpBody getHttpBaseBody()
 	{
 		return httpBaseBody;
 	}
 
-	public void setHttpBaseBody(HttpBaseBody httpBaseBody)
+	public void setHttpBaseBody(BaseHttpBody httpBaseBody)
 	{
 		this.httpBaseBody = httpBaseBody;
 	}
@@ -62,12 +62,12 @@ public class Response
 
 	public Response(){
 		headers = new Headers();
-		httpBaseBody = new HttpBaseBody();
+		httpBaseBody = new BaseHttpBody();
 		version = DEFAULTVERSION;
 		code = new HttpCode(0,"");
 
 	}
-	public Response(String _version,HttpCode _code ,Headers _headers,HttpBaseBody _httpBaseBody)
+	public Response(String _version,HttpCode _code ,Headers _headers,BaseHttpBody _httpBaseBody)
 	{
 		this.version = _version;
 		this.headers = _headers;

@@ -1,14 +1,14 @@
-package MyHttp.Exception;
+package myHttp.exception;
 
 /**
  * Created by wyy on 17-2-9.
  */
-public class HttpBaseException extends Exception
+public class BaseHttpException extends Exception
 {
 	private int code;
 	private String message;
 
-	HttpBaseException(int _code, String _message)
+	BaseHttpException(int _code, String _message)
 	{
 		super(_message);
 		this.message = _message;

@@ -1,4 +1,4 @@
-package MyHttp.Header;
+package myHttp.header;
 
 import java.util.HashMap;
 import java.util.Vector;

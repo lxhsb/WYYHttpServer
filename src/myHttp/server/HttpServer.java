@@ -1,10 +1,10 @@
-package MyHttp.Server;
+package myHttp.server;
 
-import MyHttp.Header.Headers;
-import MyHttp.Request.Request;
-import MyHttp.Response.Body.PlainTextBody;
-import MyHttp.Response.Code.HttpCode;
-import MyHttp.Response.Response;
+import myHttp.header.Headers;
+import myHttp.request.Request;
+import myHttp.response.body.PlainTextBody;
+import myHttp.response.code.HttpCode;
+import myHttp.response.Response;
 
 import java.io.*;
 import java.net.ServerSocket;
