@@ -36,7 +36,6 @@ public class StaticFileHandler extends BaseHttpHandler//考虑了线程安全
 		if(file.isDirectory()){//是目录
 			file = new File(path+file.separator+"index.html");
 		}
-		//System.out.println(file.getAbsolutePath());
 		try
 		{
 			StaticFileBody staticFileBody = new StaticFileBody(file);
@@ -44,7 +43,6 @@ public class StaticFileHandler extends BaseHttpHandler//考虑了线程安全
 
 		}
 		catch (Exception e ){
-			//e.printStackTrace();
 			throw e;
 		}
 

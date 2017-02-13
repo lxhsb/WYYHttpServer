@@ -74,7 +74,6 @@ public class HttpServer
 							e.printStackTrace();
 						}
 						socket.close();
-
 					}
 					System.out.println("服务完毕" + socket.hashCode());
 				}
