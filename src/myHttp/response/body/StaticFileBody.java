@@ -37,6 +37,7 @@ public class StaticFileBody extends BaseHttpBody
 		}
 		catch (java.io.FileNotFoundException e)
 		{
+			e.printStackTrace();
 			throw new FileNotFoundException();
 		}
 		catch (IOException e)

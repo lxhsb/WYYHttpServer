@@ -9,16 +9,15 @@ public class FileReader
 {
 	public String ReadFile(File file) throws IOException
 	{
-		FileInputStream fin = null;
-		InputStreamReader in = null;
-		BufferedReader input = null;
-		StringBuilder sb;
+		System.out.print(file.getAbsolutePath());
 		try
 		{
-			sb = new StringBuilder();
-			fin = new FileInputStream(file);
-			in = new InputStreamReader(fin);
-			input = new BufferedReader(in);
+		FileInputStream fin = new FileInputStream(file);
+
+		InputStreamReader in = new InputStreamReader(fin);
+		BufferedReader input = new BufferedReader(in);
+		StringBuilder sb = new StringBuilder();
+
 			String line = null;
 			while (input.ready())
 			{
@@ -26,21 +25,24 @@ public class FileReader
 				sb.append(line);
 			}
 			//System.out.println(sb.toString());
-
+			input.close();
+			in.close();
+			fin.close();
+			return sb.toString();
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+			throw e;
 		}
 		catch (IOException e)
 		{
+			e.printStackTrace();
 			throw e;
 		}
-		finally
-		{
-			fin.close();
-			in.close();
-			input.close();
 
-		}
 
-		return sb.toString();
+
 
 	}
 }

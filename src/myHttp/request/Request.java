@@ -88,7 +88,7 @@ public class Request
 				break;
 			//System.out.println(++index + " : " + line);
 			++index ;
-			//System.out.println(index + " : " + line);
+			System.out.println(index + " : " + line);
 			if (index == 1)
 			{
 				String propers[] = line.split(" ");
@@ -117,7 +117,7 @@ public class Request
 		/*
 		init request body finish
 		 */
-		//System.out.println("version = "+version+ " path = "+path +" method = "+httpMethod);
+		System.out.println("version = "+version+ " path = "+path +" method = "+httpMethod);
 
 
 

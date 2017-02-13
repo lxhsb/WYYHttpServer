@@ -20,64 +20,67 @@ public class HttpServer
 	public HttpServer(int port) throws IOException
 	{
 		ServerSocket serverSocket = new ServerSocket(port);
+		int idx = 0 ;
 		while (true)
 		{
 			Socket socket = serverSocket.accept();
-
-			BufferedReader input = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
-
-			BufferedWriter output = new BufferedWriter(
-					new OutputStreamWriter(socket.getOutputStream()));
-
-			Response rep = null;
-			StaticFileHandler staticFileHandler = new StaticFileHandler();
-			try
-			{
-				Request req = new Request(input);
-				rep = staticFileHandler.doWithRequest(req);
-				System.out.print(rep.getHeaders().toString());
-			}
-			catch (MethodNotAllowException e)
-			{
-				rep = new Response(Response.DEFAULT_VERSION,
-						HttpCode.METHODNOTALLOW,
-						new PlainTextBody("Method Not Allow"));
-			}
-			catch (myHttp.exception.FileNotFoundException e)
-			{
-				//System.out.println("发现问题,文件不存在");
-				rep = new Response(Response.DEFAULT_VERSION,
-						HttpCode.FILENOTFOUND,
-						new PlainTextBody("File Not Found "));
-			}
-			catch (IOException e)
-			{
-				rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
-						new PlainTextBody(e.toString()));
-
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
-						new PlainTextBody(e.toString()));
-			}
-			finally
-			{
-				try
+			System.out.println("正在服务"+ socket.hashCode());
+			new Thread(){
 				{
-					output.write(rep.toString());
-					output.flush();
-					input.close();
-					output.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
+					BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+					BufferedWriter output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+					Response rep = null;
+					StaticFileHandler staticFileHandler = new StaticFileHandler();
+					try
+					{
+						Request req = new Request(input);
+						rep = staticFileHandler.doWithRequest(req);
+					}
+					catch (MethodNotAllowException e)
+					{
+						rep = new Response(Response.DEFAULT_VERSION, HttpCode.METHODNOTALLOW,
+								new PlainTextBody("Method Not Allow"));
+					}
+					catch (myHttp.exception.FileNotFoundException e)
+					{
+						rep = new Response(Response.DEFAULT_VERSION, HttpCode.FILENOTFOUND,
+								new PlainTextBody("File Not Found "));
+					}
+					catch (IOException e)
+					{
+						rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
+								new PlainTextBody(e.toString()));
+
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+						rep = new Response(Response.DEFAULT_VERSION, HttpCode.OK,
+								new PlainTextBody(e.toString()));
+					}
+					finally
+					{
+						try
+						{
+							output.write(rep.toString());
+							output.flush();
+							input.close();
+							output.close();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+						socket.close();
+
+					}
+					System.out.println("服务完毕" + socket.hashCode());
 				}
 
-			}
+			}.start();
+
 
 		}
 
