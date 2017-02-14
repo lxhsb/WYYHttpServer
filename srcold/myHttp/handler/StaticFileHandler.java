@@ -4,7 +4,6 @@ import myHttp.request.Request;
 import myHttp.response.Response;
 import myHttp.response.body.PlainTextBody;
 import myHttp.response.body.StaticFileBody;
-import myHttp.response.code.HttpCode;
 import myHttp.util.FileReader;
 
 import java.io.File;

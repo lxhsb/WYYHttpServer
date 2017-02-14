@@ -3,7 +3,6 @@ package myHttp.response;
 import myHttp.header.Header;
 import myHttp.header.Headers;
 import myHttp.response.body.BaseHttpBody;
-import myHttp.response.code.HttpCode;
 
 /**
  * Created by wyy on 17-2-10.
