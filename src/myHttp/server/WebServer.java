@@ -27,7 +27,7 @@ public class WebServer
 		while (true)
 		{
 			Socket socket = serverSocket.accept();
-			System.out.print(socket.hashCode());
+			//System.out.print(socket.hashCode());
 			new Processor(socket).run();
 		}
 	}

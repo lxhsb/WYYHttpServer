@@ -38,7 +38,7 @@ public class Request
 			String line = null;
 			while ((line = input.readLine()) != null)//暂时先只处理get请求
 			{
-				System.out.println(line);
+				//System.out.println(line);
 				if (line.length() == 0)
 				{
 					break;

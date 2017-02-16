@@ -46,5 +46,6 @@ public class HttpStatusCode
 			405, "Method Not Allow");
 	public static final HttpStatusCode BAD_REQUEST = new HttpStatusCode(400,
 			"Bad Request");
+	public static final HttpStatusCode FORBIDDEN = new HttpStatusCode(403,"Forbidden");
 
 }

@@ -3,6 +3,7 @@ package myHttp.response;
 import myHttp.body.HttpMessageBody;
 import myHttp.response.code.HttpStatusCode;
 
+import java.util.Hashtable;
 import java.util.Map;
 
 /**
@@ -22,6 +23,15 @@ public class Response
 		this.httpStatusCode = httpStatusCode;
 		this.headers = headers;
 		this.httpMessageBody = httpMessageBody;
+	}
+	public Response(HttpStatusCode httpStatusCode,HttpMessageBody httpMessageBody)
+	{
+		this.version = DEFAULT_VERSION;
+		this.httpStatusCode = httpStatusCode;
+		this.httpMessageBody = httpMessageBody;
+		this.headers = new Hashtable<>();
+		this.headers.put("Content-type",httpMessageBody.getContentType());
+		this.headers.put("Content-Length",Long.toString(httpMessageBody.getContentLength()));
 	}
 
 	public HttpStatusCode getHttpStatusCode()
@@ -62,6 +72,20 @@ public class Response
 	public void setHeaders(Map<String, String> headers)
 	{
 		this.headers = headers;
+	}
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		//StringBuilder sb = new StringBuilder();
+		sb.append(this.version + " " +httpStatusCode.toString()).append("\r\n");
+		for (String key : headers.keySet())
+		{
+			sb.append(key + ":" + headers.get(key)).append("\r\n");
+		}
+		sb.append("\r\n");
+		sb.append(httpMessageBody.toString()).append("\r\n");
+		return sb.toString();
+
 	}
 
 }

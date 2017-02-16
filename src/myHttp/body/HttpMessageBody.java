@@ -1,6 +1,7 @@
 package myHttp.body;
 
 import myHttp.exception.BadRequestException;
+import myHttp.exception.ForbiddenException;
 import myHttp.exception.MethodNotAllowException;
 import myHttp.exception.NotFoundException;
 import myHttp.util.MIMEMap;
@@ -56,4 +57,6 @@ public class HttpMessageBody
 			NotFoundException.NOT_FOUND_MESSAGE);
 	public static final HttpMessageBody METHOD_NOT_ALLOW_MESSAGE_BODY = new HttpMessageBody(MIMEMap.HTML_TYPE,
 			MethodNotAllowException.METHOD_NOT_ALLOW_MESSAGE);
+	public static final HttpMessageBody FORBIDDEN_MESSAGE_BODY = new HttpMessageBody(MIMEMap.HTML_TYPE,
+			ForbiddenException.FORBIDDEN_MESSAGE);
 }
