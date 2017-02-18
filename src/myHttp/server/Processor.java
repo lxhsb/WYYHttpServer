@@ -15,6 +15,7 @@ import java.net.Socket;
 public class Processor implements Runnable
 {
 	private Socket socket;
+	private static int a = 1;
 
 	public Processor(Socket socket)
 	{
@@ -24,6 +25,7 @@ public class Processor implements Runnable
 
 	@Override public void run()
 	{
+		//System.out.println(a++);
 		InputStream input = null;
 		OutputStream output = null;
 		Response rep = ErrorResponse.getErrorResponse(1000);//获取未知错误，这里Code是不存在的

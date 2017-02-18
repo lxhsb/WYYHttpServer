@@ -1,7 +1,15 @@
 package myHttp.server;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+import javax.xml.ws.handler.Handler;
+import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * Created by wyy on 17-2-13.
@@ -30,6 +38,8 @@ public class WebServer
 			//System.out.print(socket.hashCode());
 			new Processor(socket).run();
 		}
+
 	}
 
 }
+
