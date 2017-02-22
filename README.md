@@ -15,7 +15,7 @@
 
 ##Todo
 >1. <del>修复上面的Bug</del>暂时已修复
->2. ***加入线程池的支持*** 暂时不知道使用那个线程池比较好
+>2. <del>加入线程池的支持</del>使用了CachedThreadPool
 >3. 加入对post请求的支持
 >4. 加入简单的日志功能
 >4. 学会使用***epoll***
@@ -26,16 +26,24 @@
 
 ##性能
 
-+ 在目前版本下，使用Http_load本机简单测试性能如下（暂时找不来别的机器）
-> 10000 fetches, 2 max parallel, 90000 bytes, in 30.0023 seconds  
-  9 mean bytes/connection  
-  333.308 fetches/sec, 2999.77 bytes/sec  
-  msecs/connect: 0.751169 mean, 1.923 max, 0.701 min  
-  msecs/first-response: 0.775515 mean, 2.957 max, 0.726 min  
-  HTTP response codes:  
-  code 200 -- 10000
+##### 都是使用Http_load进行测试，暂时都是在本机测试（找不来别的机器）  
++ 在V2版本下：（CachedThreadPool，阻塞io）  
 
-+ 使用Java自带的http实现，则性能如下(暂时还没来得及测试，待填坑)
+      暂时没时间测试  
+
++ 在V1版本下:（最基本的，无线程池，阻塞io，来一个连接新建一个线程）  
+
+      10000 fetches, 2 max parallel, 90000 bytes, in 30.0023 seconds  
+      9 mean bytes/connection  
+      333.308 fetches/sec, 2999.77 bytes/sec  
+      msecs/connect: 0.751169 mean, 1.923 max, 0.701 min  
+      msecs/first-response: 0.775515 mean, 2.957 max, 0.726 min  
+      HTTP response codes:  
+      code 200 -- 10000
+
++ 使用Java自带的http实现:
+
+      暂时没时间测试
 
   
 
