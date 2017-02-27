@@ -29,7 +29,14 @@
 ##### 都是使用Http_load进行测试，暂时都是在本机测试（找不来别的机器）  
 + 在V2版本下：（CachedThreadPool，阻塞io）  
 
-      暂时没时间测试  
+      10000 fetches, 12 max parallel, 90000 bytes, in 20.0024 seconds
+      9 mean bytes/connection
+      499.94 fetches/sec, 4499.46 bytes/sec
+      msecs/connect: 0.803044 mean, 2.556 max, 0.728 min
+      msecs/first-response: 0.841625 mean, 24.015 max, 0.735 min
+      HTTP response codes:
+      code 200 -- 10000
+
 
 + 在V1版本下:（最基本的，无线程池，阻塞io，来一个连接新建一个线程）  
 
