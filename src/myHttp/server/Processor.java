@@ -40,7 +40,7 @@ public class Processor implements Runnable
 			不支持配置
 			所以这里就只能先这样实现
 			 */
-			StaticFileHandler staticFileHandler = new StaticFileHandler(req,".");
+			StaticFileHandler staticFileHandler = new StaticFileHandler(req,"./wwwroot");
 			rep = staticFileHandler.handle();
 
 
