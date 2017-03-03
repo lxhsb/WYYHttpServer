@@ -6,6 +6,8 @@ public class Main {
         {
             NioServer nioServer = new NioServer();
             nioServer.start();
+          //  Server server = new Server();
+          //  server.start();
         }
         catch (Exception e )
         {

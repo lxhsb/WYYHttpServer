@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -20,6 +23,7 @@ public class NioServer
 	public static int PORT = 1208;
 	private Selector selector;
 	private ServerSocketChannel serverSocketChannel;
+
 	public NioServer() throws IOException
 	{
 		selector = Selector.open();
@@ -30,91 +34,95 @@ public class NioServer
 		serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
 	}
 
+	private String receive(SocketChannel socketChannel) throws Exception
+	{
+		ByteBuffer buffer = ByteBuffer.allocate(1024);
+		byte[] bytes = null;
+		int size = 0;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		while ((size = socketChannel.read(buffer)) > 0)
+		{
+			buffer.flip();
+			bytes = new byte[size];
+			buffer.get(bytes);
+			baos.write(bytes);
+			buffer.clear();
+		}
+		bytes = baos.toByteArray();
+
+		return new String(bytes);
+	}
+
 	public void start()
 	{
-		System.out.println("1");
-		Map<SocketChannel,BlockingQueue<ByteBuffer>>mp = new ConcurrentHashMap<>();
-		while(true)
+		while (true)
 		{
-			//System.out.println("2");
 			try
 			{
 				selector.select();
-				Iterator<SelectionKey>selectionKeyIterator = selector.selectedKeys().iterator();
-				while(selectionKeyIterator.hasNext())
+				Iterator<SelectionKey> selectionKeyIterator = selector
+						.selectedKeys().iterator();
+				while (selectionKeyIterator.hasNext())
 				{
 					SelectionKey key = selectionKeyIterator.next();
-					if(key.isValid()==false)
+					if (key.isValid() == false)
 					{
 						continue;
 					}
-					if(key.isAcceptable())
+					if (key.isAcceptable())
 					{
-						SocketChannel socketChannel = serverSocketChannel.accept();
-						socketChannel.configureBlocking(false);
-						socketChannel.register(selector,SelectionKey.OP_READ);
-					}
-					else if(key.isReadable())
-					{
-						SocketChannel socketChannel = (SocketChannel) key.channel();
-						BlockingQueue now = mp.get(socketChannel);
-						if(now == null)
-						{
-							now = new LinkedBlockingQueue();
-							mp.put(socketChannel,now);
-						}
-						ByteBuffer buffer = ByteBuffer.allocate(1024);
-						int num = socketChannel.read(buffer);
-						System.out.println(buffer.array());
-						if(num == -1 )
-						{
-							socketChannel.close();
-							key.cancel();
+						SocketChannel socketChannel = serverSocketChannel
+								.accept();
+						if (socketChannel == null)
 							continue;
-						}
-						else
-						{
-							now.put(buffer);
-							key.interestOps(SelectionKey.OP_WRITE|SelectionKey.OP_READ);
-						}
-
-
+						socketChannel.configureBlocking(false);
+						socketChannel.register(selector, SelectionKey.OP_READ);
 					}
-					else if(key.isWritable())
+					else if (key.isReadable())
 					{
-						SocketChannel socketChannel = (SocketChannel)key.channel();
-						BlockingQueue now = mp.get(socketChannel);
-						if(now == null)
+						SocketChannel socketChannel = (SocketChannel) key
+								.channel();
+						SocketChannel channel = (SocketChannel) key.channel();
+						channel.configureBlocking(false);
+						String receive = receive(channel);
+						BufferedReader b = new BufferedReader(
+								new StringReader(receive));
+						String s = b.readLine();
+						while (s != null)
 						{
-							System.out.println("???");
-							//continue;
+							System.out.println(s);
+							s = b.readLine();
 						}
-						else
-						{
-							while(!now.isEmpty())
-							{
-								ByteBuffer b = (ByteBuffer) now.remove();
-								System.out.println(b.toString());
-								socketChannel.write(b);
-							}
-						}
+						b.close();
+						key.interestOps(SelectionKey.OP_WRITE);
+					}
+					else if (key.isWritable())
+					{
+						SocketChannel channel = (SocketChannel) key.channel();
+						StringBuilder sb = new StringBuilder();
+						sb.append("HTTP/1.1 200 OK").append("\r\n");
+						String hello = "hello world..." + channel.hashCode();
+						sb.append("Content-Length:" + hello.length())
+								.append("\r\n");
+						sb.append("Content-Type:text/html").append("\r\n");
+						sb.append("\r\n");
+						sb.append(hello);
+						ByteBuffer buffer = ByteBuffer
+								.wrap(sb.toString().getBytes());
+						channel.write(buffer);
+						System.out.print(sb.toString());
 						key.interestOps(SelectionKey.OP_READ);
-
 					}
 				}
 			}
-			catch (Exception e )
+			catch (Exception e)
 			{
 				e.printStackTrace();
 
 			}
 
-
 		}
 
 	}
-
-
-
 
 }
