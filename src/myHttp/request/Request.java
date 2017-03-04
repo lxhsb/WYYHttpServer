@@ -29,7 +29,6 @@ public class Request
 
 		boolean headersFinish = false;
 		headers = new Hashtable<>();
-		//bodyLines = new Vector<>();
 		BufferedReader input = null;
 		try
 		{
@@ -126,7 +125,6 @@ public class Request
 	{
 		this.httpMessageBody = httpMessageBody;
 	}
-
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();

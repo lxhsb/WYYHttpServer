@@ -20,12 +20,10 @@ public class Processor implements Runnable
 	public Processor(Socket socket)
 	{
 		this.socket = socket;
-
 	}
 
 	@Override public void run()
 	{
-		//System.out.println(a++);
 		InputStream input = null;
 		OutputStream output = null;
 		Response rep = ErrorResponse.getErrorResponse(1000);//获取未知错误，这里Code是不存在的
@@ -42,8 +40,6 @@ public class Processor implements Runnable
 			 */
 			StaticFileHandler staticFileHandler = new StaticFileHandler(req,"./wwwroot");
 			rep = staticFileHandler.handle();
-
-
 		}
 		catch (BaseHttpException e)
 		{
