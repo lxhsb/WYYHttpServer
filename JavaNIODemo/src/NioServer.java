@@ -49,6 +49,7 @@ public class NioServer
 			buffer.clear();
 		}
 		bytes = baos.toByteArray();
+		System.out.println(socketChannel.hashCode()+"receive done");
 
 		return new String(bytes);
 	}
@@ -65,39 +66,32 @@ public class NioServer
 				while (selectionKeyIterator.hasNext())
 				{
 					SelectionKey key = selectionKeyIterator.next();
+					selectionKeyIterator.remove();
+
 					if (key.isValid() == false)
 					{
 						continue;
 					}
+					System.out.println("key: "+ key.hashCode());
 					if (key.isAcceptable())
 					{
-						SocketChannel socketChannel = serverSocketChannel
-								.accept();
-						if (socketChannel == null)
-							continue;
+						System.out.println("key: "+ key.hashCode()+" isAcceptable ");
+						SocketChannel socketChannel = ((ServerSocketChannel)key.channel()).accept();
 						socketChannel.configureBlocking(false);
 						socketChannel.register(selector, SelectionKey.OP_READ);
 					}
 					else if (key.isReadable())
 					{
-						SocketChannel socketChannel = (SocketChannel) key
-								.channel();
+						System.out.println("key: "+ key.hashCode()+" isReadable ");
 						SocketChannel channel = (SocketChannel) key.channel();
-						channel.configureBlocking(false);
 						String receive = receive(channel);
-						BufferedReader b = new BufferedReader(
-								new StringReader(receive));
-						String s = b.readLine();
-						while (s != null)
-						{
-							System.out.println(s);
-							s = b.readLine();
-						}
-						b.close();
+						System.out.println(receive);
 						key.interestOps(SelectionKey.OP_WRITE);
+						System.out.println(key.interestOps());
 					}
 					else if (key.isWritable())
 					{
+						System.out.println("key: "+ key.hashCode()+" isWriteable ");
 						SocketChannel channel = (SocketChannel) key.channel();
 						StringBuilder sb = new StringBuilder();
 						sb.append("HTTP/1.1 200 OK").append("\r\n");
@@ -105,19 +99,36 @@ public class NioServer
 						sb.append("Content-Length:" + hello.length())
 								.append("\r\n");
 						sb.append("Content-Type:text/html").append("\r\n");
+						sb.append("Connection:keep-alive").append("\r\n");
 						sb.append("\r\n");
 						sb.append(hello);
 						ByteBuffer buffer = ByteBuffer
 								.wrap(sb.toString().getBytes());
-						channel.write(buffer);
-						System.out.print(sb.toString());
+							channel.write(buffer);
+						//System.out.print(sb.toString());
 						key.interestOps(SelectionKey.OP_READ);
+						System.out.println(sb.toString());
+						System.out.println(key.interestOps());
+					}
+					else
+					{
+						System.out.println("key: "+ key.hashCode()+" mother fucker ");
 					}
 				}
 			}
 			catch (Exception e)
 			{
+
+
 				e.printStackTrace();
+				try
+				{
+					Thread.sleep(1000);
+				}
+				catch (Exception ee)
+				{
+
+				}
 
 			}
 
