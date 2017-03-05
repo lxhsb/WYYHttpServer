@@ -70,6 +70,10 @@ public class Request
 			throw new BadRequestException();
 		}
 	}
+	public Request(String strRequest) throws BaseHttpException
+	{
+		// to do
+	}
 
 	public Request parse(InputStream in) throws BaseHttpException
 	{

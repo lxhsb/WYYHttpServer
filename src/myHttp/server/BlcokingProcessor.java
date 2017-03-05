@@ -12,12 +12,14 @@ import java.net.Socket;
 /**
  * Created by wyy on 17-2-13.
  */
-public class Processor implements Runnable
+public class BlcokingProcessor implements Runnable
 {
+	/*
+	在阻塞模式下的processor，传入一个socket，完成所有的操作
+	 */
 	private Socket socket;
 	private static int a = 1;
-
-	public Processor(Socket socket)
+	public BlcokingProcessor(Socket socket)
 	{
 		this.socket = socket;
 	}
@@ -64,7 +66,6 @@ public class Processor implements Runnable
 			catch (IOException e)
 			{
 				e.printStackTrace();
-
 			}
 
 		}

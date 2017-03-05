@@ -1,14 +1,19 @@
 package myHttp.server;
 
-import myHttp.request.Request;
+import myHttp.response.Response;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.BlockingQueue;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,12 +31,12 @@ public final class WebServer//不让继承
 	private boolean starting = false;//记录服务器是否正在运行
 	private Object obj = new Object();//用来加锁
 	private ExecutorService executorService;//在同步阻塞的情况下使用 //默认使用cachedthreadpool
+	private Vector<NonBlockingProcessor> processors;
+	private static Random random = new Random();//用来做负载均衡
 	/*
 	↓↓↓↓↓↓以下是用来非阻塞所需要的↓↓↓↓↓↓
 	 */
 	private Selector selector;
-	//	private ServerSocketChannel serverSocketChannel;
-	private BlockingQueue<Request> requestQueue;//每接受处理好一个request就放在这里面
 
 	public WebServer()
 	{
@@ -74,12 +79,22 @@ public final class WebServer//不让继承
 			else
 			{
 				this.selector = Selector.open();
+
 				ServerSocketChannel serverSocketChannel = ServerSocketChannel
 						.open();
 				serverSocketChannel.configureBlocking(false);
 				serverSocketChannel.socket()
 						.bind(new InetSocketAddress(port));//any
 				serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+				processors = new Vector<>();
+				int cpuNum = Runtime.getRuntime().availableProcessors();
+				for (int i = 0; i < 2 * cpuNum; i++)//开2倍应该会比较好吧
+				{
+					NonBlockingProcessor processor = new NonBlockingProcessor();
+					processor.run();
+					processors.add(processor);
+				}
 			}
 		}
 		catch (Exception e)
@@ -93,7 +108,7 @@ public final class WebServer//不让继承
 	{
 		starting = true;
 		initServer();
-		if (blocking == true)
+		if (blocking)
 		{
 			this.startBlockingServer();
 		}
@@ -103,10 +118,10 @@ public final class WebServer//不让继承
 		}
 
 	}
+
 	/*
 	对于阻塞式的 由每个processer来处理io
 	 */
-
 	private void startBlockingServer() throws Exception//阻塞式的
 	{
 
@@ -114,7 +129,7 @@ public final class WebServer//不让继承
 		while (true)
 		{
 			Socket socket = serverSocket.accept();
-			this.executorService.execute(new Processor(socket));
+			this.executorService.execute(new BlcokingProcessor(socket));
 		}
 	}
 
@@ -123,12 +138,82 @@ public final class WebServer//不让继承
 	 */
 	private void startNonBlockingServer() throws Exception//非阻塞式的
 	{
-		while(true)
+		while (true)
 		{
-
-
-
+			selector.select();
+			Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+			while (keys.hasNext())
+			{
+				SelectionKey key = keys.next();
+				keys.remove();
+				if (key.isValid() == false)
+				{
+					continue;
+				}
+				if (key.isAcceptable())
+				{
+					doAccept(key);
+				}
+				else if (key.isReadable())
+				{
+					doRead(key);
+				}
+				else if (key.isWritable())
+				{
+					doWrite(key);
+				}
+				else//可能不可能出现别的情况呢？ 我也不知道
+				{
+					System.err.println("error in key " + key.hashCode()
+							+ " with nothing to do");
+				}
+			}
 		}
+	}
+
+	private void doAccept(SelectionKey key) throws IOException
+	{
+		SocketChannel socketChannel = ((ServerSocketChannel) key.channel())
+				.accept();
+		socketChannel.configureBlocking(false);
+		socketChannel.register(selector, SelectionKey.OP_READ);
+
+	}
+
+	private void doRead(SelectionKey key) throws IOException
+	{
+		SocketChannel socketChannel = (SocketChannel) key.channel();
+		ByteBuffer buffer = ByteBuffer.allocate(1024<<2);//暂时不考虑文件上传等一系列问题 //其实这里可以优化一下
+		int size = 0;
+		try
+		{
+			size = socketChannel.read(buffer);
+			if (size == -1)//出现-1应该就是被关掉了
+			{
+				socketChannel.close();
+				key.cancel();
+				return;
+			}
+		}
+		catch (IOException e)//出现异常就关掉
+		{
+			socketChannel.close();
+			key.cancel();
+		}
+		int sz = processors.size();
+		int who = random.nextInt(sz);
+		byte bytes[] = new byte[size];
+		System.arraycopy(buffer.array(),0,bytes,0,size);
+		processors.get(who).addRequest(socketChannel, bytes);//这里之所以要复制下是因为可能并没有读满，避免错误嘛
+	}
+
+	private void doWrite(SelectionKey key) throws IOException
+	{
+
+	}
+
+	public void send(SocketChannel client, Response response)//不是说你要送，我就送，要打申请的
+	{
 
 	}
 
