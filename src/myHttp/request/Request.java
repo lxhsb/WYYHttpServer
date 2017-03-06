@@ -5,10 +5,7 @@ import myHttp.exception.BadRequestException;
 import myHttp.exception.BaseHttpException;
 import myHttp.exception.MethodNotAllowException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
@@ -23,16 +20,27 @@ public class Request
 	private String version;
 	private Map<String, String> headers;
 	private HttpMessageBody httpMessageBody;
+	/*
+	这里的构造函数嵌套的比较多
+	好多最后都没有关，待改
+	虽说可能不会造成内存泄露，但是应该还是影响性能的
+	 */
 
 	public Request(InputStream in) throws BaseHttpException
 	{
-
-		boolean headersFinish = false;
+		this(new BufferedReader(new InputStreamReader(in)));
+	}
+	public Request(String strRequest) throws BaseHttpException
+	{
+		// to do
+		this(new BufferedReader(new StringReader(strRequest)));
+	}
+	public Request(BufferedReader input) throws BaseHttpException
+	{
+		//boolean headersFinish = false;
 		headers = new Hashtable<>();
-		BufferedReader input = null;
 		try
 		{
-			input = new BufferedReader(new InputStreamReader(in));
 			String[] firstLine = null;
 			String line = null;
 			while ((line = input.readLine()) != null)//暂时先只处理get请求
@@ -69,15 +77,6 @@ public class Request
 		{
 			throw new BadRequestException();
 		}
-	}
-	public Request(String strRequest) throws BaseHttpException
-	{
-		// to do
-	}
-
-	public Request parse(InputStream in) throws BaseHttpException
-	{
-		return new Request(in);
 	}
 
 	public HttpMethod getHttpMethod()

@@ -1,6 +1,8 @@
 package myHttp.server;
 
-import myHttp.response.Response;
+import pkg.ResponsePackage;
+import processor.BlcokingProcessor;
+import processor.NonBlockingProcessor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,8 +16,10 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by wyy on 17-2-13.
@@ -37,6 +41,8 @@ public final class WebServer//不让继承
 	↓↓↓↓↓↓以下是用来非阻塞所需要的↓↓↓↓↓↓
 	 */
 	private Selector selector;
+	private BlockingQueue<Changes>changesQueue;
+
 
 	public WebServer()
 	{
@@ -80,6 +86,8 @@ public final class WebServer//不让继承
 			{
 				this.selector = Selector.open();
 
+				changesQueue = new LinkedBlockingQueue<Changes>();
+
 				ServerSocketChannel serverSocketChannel = ServerSocketChannel
 						.open();
 				serverSocketChannel.configureBlocking(false);
@@ -91,7 +99,7 @@ public final class WebServer//不让继承
 				int cpuNum = Runtime.getRuntime().availableProcessors();
 				for (int i = 0; i < 2 * cpuNum; i++)//开2倍应该会比较好吧
 				{
-					NonBlockingProcessor processor = new NonBlockingProcessor();
+					NonBlockingProcessor processor = new NonBlockingProcessor(this);
 					processor.run();
 					processors.add(processor);
 				}
@@ -138,8 +146,17 @@ public final class WebServer//不让继承
 	 */
 	private void startNonBlockingServer() throws Exception//非阻塞式的
 	{
+		Changes changes = null;
 		while (true)
 		{
+			while((changes = changesQueue.remove())!=null)//这样写应该没错吧 先这样 //这样写在流量大的时候造成死循环？
+			{
+				SelectionKey key = changes.socketChannel.keyFor(this.selector);
+				if(key!=null&&key.isValid())
+				{
+					key.interestOps(changes.op);
+				}
+			}
 			selector.select();
 			Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
 			while (keys.hasNext())
@@ -210,12 +227,29 @@ public final class WebServer//不让继承
 	private void doWrite(SelectionKey key) throws IOException
 	{
 
+
 	}
 
-	public void send(SocketChannel client, Response response)//不是说你要送，我就送，要打申请的
+	public void send(ResponsePackage responsePackage)//不是说你要送，我就送，要打申请的
 	{
 
+
+
 	}
 
+}
+/*
+这个类是打包封装一下channel的intrestOps的改变
+主要是为了防止一些多线程可能会出现的问题。
+ */
+class Changes
+{
+	SocketChannel socketChannel;
+	int op;
+	Changes(SocketChannel socketChannel,int op)
+	{
+		this.socketChannel = socketChannel;
+		this.op = op;
+	}
 }
 

@@ -1,4 +1,4 @@
-package myHttp.server;
+package processor;
 
 import myHttp.exception.BaseHttpException;
 import myHttp.handler.StaticFileHandler;
