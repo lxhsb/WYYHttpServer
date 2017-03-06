@@ -1,4 +1,4 @@
-package processor;
+package myHttp.processor;
 
 import myHttp.exception.BaseHttpException;
 import myHttp.handler.StaticFileHandler;
@@ -7,8 +7,8 @@ import myHttp.response.Response;
 import myHttp.response.error.ErrorResponse;
 
 import myHttp.server.WebServer;
-import pkg.RequestPackage;
-import pkg.ResponsePackage;
+import myHttp.mypackage.RequestPackage;
+import myHttp.mypackage.ResponsePackage;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;

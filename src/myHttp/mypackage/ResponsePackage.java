@@ -1,4 +1,4 @@
-package pkg;
+package myHttp.mypackage;
 
 import myHttp.response.Response;
 
@@ -6,7 +6,8 @@ import java.nio.channels.SocketChannel;
 
 /**
  * Created by wyy on 17-3-6.
- */ /*
+ */
+/*
 用来包装一下
  */
 public class ResponsePackage

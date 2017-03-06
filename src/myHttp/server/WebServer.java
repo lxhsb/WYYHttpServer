@@ -1,8 +1,9 @@
 package myHttp.server;
 
-import pkg.ResponsePackage;
-import processor.BlcokingProcessor;
-import processor.NonBlockingProcessor;
+
+
+import myHttp.processor.BlcokingProcessor;
+import myHttp.processor.NonBlockingProcessor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,7 +36,7 @@ public final class WebServer//不让继承
 	private boolean starting = false;//记录服务器是否正在运行
 	private Object obj = new Object();//用来加锁
 	private ExecutorService executorService;//在同步阻塞的情况下使用 //默认使用cachedthreadpool
-	private Vector<NonBlockingProcessor> processors;
+	private Vector<myHttp.processor.NonBlockingProcessor> processors;
 	private static Random random = new Random();//用来做负载均衡
 	/*
 	↓↓↓↓↓↓以下是用来非阻塞所需要的↓↓↓↓↓↓
@@ -100,6 +101,7 @@ public final class WebServer//不让继承
 				for (int i = 0; i < 2 * cpuNum; i++)//开2倍应该会比较好吧
 				{
 					NonBlockingProcessor processor = new NonBlockingProcessor(this);
+
 					processor.run();
 					processors.add(processor);
 				}
@@ -230,7 +232,7 @@ public final class WebServer//不让继承
 
 	}
 
-	public void send(ResponsePackage responsePackage)//不是说你要送，我就送，要打申请的
+	public void send(myHttp.mypackage.ResponsePackage responsePackage)//不是说你要送，我就送，要打申请的
 	{
 
 
