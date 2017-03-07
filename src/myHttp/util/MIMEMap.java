@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class MIMEMap
 {
-	public final static String HTML_TYPE = "text/html; charset=utf-8";
+	public final static String HTML_TYPE = "text/html";
 	public final static String TEXT_TYPE = "text/plain";
 	public final static String GIF_TYPE = "image/gif";
 	public final static String JPG_TYPE = "image/jpeg";

@@ -32,8 +32,50 @@ public class Request
 	}
 	public Request(String strRequest) throws BaseHttpException
 	{
+		System.out.println("in request "+strRequest);
 		// to do
-		this(new BufferedReader(new StringReader(strRequest)));
+		//this(new BufferedReader(new StringReader(strRequest)));
+		BufferedReader input = new BufferedReader(new StringReader(strRequest));
+		headers = new Hashtable<>();
+		try
+		{
+			String[] firstLine = null;
+			String line = null;
+			while (input.ready())//暂时先只处理get请求
+			{
+				line = input.readLine();
+				System.out.println(line);
+				if (line.length() == 0)
+				{
+					break;
+				}
+				else if (firstLine == null)
+				{
+					firstLine = line.split(" ");
+					if (firstLine.length != 3)
+					{
+						throw new BadRequestException();
+
+					}
+					this.httpMethod = HttpMethod.get(firstLine[0]);
+					this.path = firstLine[1];
+					this.version = firstLine[2];
+				}
+				else
+				{
+					String[] tmp = line.split(":");
+					headers.put(tmp[0], tmp[1]);
+				}
+			}
+		}
+		catch (BaseHttpException e)
+		{
+			throw e;
+		}
+		catch (IOException e)
+		{
+			throw new BadRequestException();
+		}
 	}
 	public Request(BufferedReader input) throws BaseHttpException
 	{
@@ -137,7 +179,12 @@ public class Request
 			sb.append(key + ":" + headers.get(key)).append("\r\n");
 		}
 		sb.append("\r\n");
-		sb.append(httpMessageBody.toString()).append("\r\n");
+		if(httpMessageBody!=null)
+		{
+			sb.append(httpMessageBody.toString());
+			sb.append("\r\n");
+		}
+
 		return sb.toString();
 	}
 

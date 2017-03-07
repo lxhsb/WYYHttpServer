@@ -12,6 +12,7 @@ public class Main
 		WebServer webServer = new WebServer();
 		try
 		{
+			webServer.configureBlocking(false);
 			webServer.start();
 		}
 		catch (Exception e)
@@ -23,5 +24,6 @@ public class Main
 	}
 
 }
+
 
 
