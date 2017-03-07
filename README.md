@@ -11,6 +11,7 @@
 
 
 ##Bug
+>1. 长连接有问题
 >1. <del>在快速刷新的时候出现File not found，在单线程的时候问题特别明显，加入多线程后好了点，但是还是会出现问题.</del> [Solve](http://stackoverflow.com/questions/42221498/how-can-i-get-full-http-request-via-java)
 >2. 等待发现更多
 

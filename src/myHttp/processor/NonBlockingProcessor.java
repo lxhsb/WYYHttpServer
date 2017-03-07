@@ -37,13 +37,8 @@ public class NonBlockingProcessor implements Runnable
 		 */
 		try
 		{
-			//System.out.println("going to parse request");
 			String str = new String(bytes);
-			//System.out.println("in add "+ str);
 			Request req = new Request(str);
-			//System.out.println("parse success");
-			//System.out.println(req.toString());
-			//System.out.println("done!!!!!!!");
 			requestQueue.put(new RequestPackage(client,req));//用put不用add和offer
 		}
 		catch (BaseHttpException e)
@@ -77,9 +72,6 @@ public class NonBlockingProcessor implements Runnable
 			{
 				//Request req = requestQueue.take();//会阻塞的
 				requestPackage = requestQueue.take();
-				//System.out.println(requestPackage == null);
-				//System.out.println("processor is handling ");
-				//System.out.println(requestPackage.getRequest().toString());
 				StaticFileHandler staticFileHandler = new StaticFileHandler(requestPackage.getRequest(),
 						"./wwwroot");
 				response = staticFileHandler.handle();
@@ -98,8 +90,6 @@ public class NonBlockingProcessor implements Runnable
 			}
 			finally
 			{
-				//System.out.println("processor handling success  ");
-				//System.out.println(response.toString());
 				responsePackage = new ResponsePackage(requestPackage.getSocketChannel(),response);
 				this.server.send(responsePackage);
 			}

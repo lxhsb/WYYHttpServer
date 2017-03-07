@@ -104,9 +104,9 @@ public final class WebServer//不让继承
 				System.out.println("init serversocketchannel finish");
 
 				processors = new Vector<>();
-				System.out.println("init processors victor finish");
+				System.out.println("init processors vector finish");
 				int cpuNum = Runtime.getRuntime().availableProcessors();
-				System.out.println(cpuNum);
+				System.out.println(cpuNum+" cpu num ");
 				for (int i = 0; i < 2 * cpuNum; i++)//开2倍应该会比较好吧
 				{
 					NonBlockingProcessor processor = new NonBlockingProcessor(
@@ -114,7 +114,7 @@ public final class WebServer//不让继承
 					new Thread(processor).start();
 
 					processors.add(processor);
-					System.out.println("init processor "+i+ " finish");
+					//System.out.println("init processor "+i+ " finish");
 				}
 			}
 		}
@@ -167,18 +167,18 @@ public final class WebServer//不让继承
 		Changes changes = null;
 		while (true)
 		{
-			System.out.println("start to handle changes ");
+			//System.out.println("start to handle changes ");
 			while (changesQueue.isEmpty() == false)//这样写应该没错吧 先这样 //这样写在流量大的时候造成死循环？
 			{
 				changes = changesQueue.remove();
 				SelectionKey key = changes.socketChannel.keyFor(this.selector);
 				if (key != null && key.isValid())
 				{
-					System.out.println(key.channel().hashCode()+" change to write mode");
+					//System.out.println(key.channel().hashCode()+" change to write mode");
 					key.interestOps(changes.op);
 				}
 			}
-			System.out.println("changes handle done ");
+			//System.out.println("changes handle done ");
 			selector.select();
 			Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
 			while (keys.hasNext())
@@ -233,7 +233,7 @@ public final class WebServer//不让继承
 				.accept();
 		socketChannel.configureBlocking(false);
 		socketChannel.register(selector, SelectionKey.OP_READ);
-		System.out.println("new connection from "+ socketChannel.socket().getRemoteSocketAddress());
+		System.out.println("new connection from "+ socketChannel.socket().getRemoteSocketAddress()+" hash code is "+socketChannel.hashCode());
 	}
 	private void doRead(SelectionKey key) throws IOException
 	{
@@ -258,8 +258,8 @@ public final class WebServer//不让继承
 		int who = random.nextInt(sz);
 		byte bytes[] = new byte[size];
 		System.arraycopy(buffer.array(), 0, bytes, 0, size);
-		System.out.println("processor "+who+"is going to handle ");
-		System.out.println(new String(bytes));
+		//System.out.println("processor "+who+"is going to handle ");
+		//System.out.println(new String(bytes));
 		processors.get(who)
 				.addRequest(socketChannel, bytes);//这里之所以要复制下是因为可能并没有读满，避免错误嘛
 	}
@@ -268,7 +268,7 @@ public final class WebServer//不让继承
 	{
 
 		SocketChannel socketChannel = (SocketChannel)key.channel();
-		System.out.println(socketChannel.hashCode()+"do write ");
+		//System.out.println(socketChannel.hashCode()+"do write ");
 		BlockingQueue<Response> queue = socketChannelResponseMap.get(socketChannel);
 		if(queue == null)
 			return;
@@ -279,7 +279,8 @@ public final class WebServer//不让继承
 			{
 				break;
 			}
-			System.out.println("get response "+ response.toString());
+			//System.out.println("get response "+ response.toString());
+			response.getHeaders().put("Connection","keep-alive");
 			ByteBuffer byteBuffer = ByteBuffer.wrap(response.toString().getBytes("UTF8"));
 			socketChannel.write(byteBuffer);
 			if(byteBuffer.remaining()>0)
@@ -293,9 +294,10 @@ public final class WebServer//不让继承
 		{
 			try
 			{
-				changesQueue.put(new Changes(socketChannel,SelectionKey.OP_READ));
+				//changesQueue.put(new Changes(socketChannel,SelectionKey.OP_READ));
+				socketChannel.keyFor(selector).interestOps(SelectionKey.OP_READ);
 			}
-			catch (InterruptedException e )
+			catch (Exception e )
 			{
 				e.printStackTrace();
 			}
@@ -319,12 +321,11 @@ public final class WebServer//不让继承
 		try
 		{
 			queue.put(response);
-			System.out.println(socketChannel.hashCode()+" put success");
+			//System.out.println(socketChannel.hashCode()+" put success");
 		}
 		catch (InterruptedException e)
 		{
 			e.printStackTrace();
-
 		}
 		Changes changes = new Changes(responsePackage.getSocketChannel(),
 				SelectionKey.OP_WRITE);
