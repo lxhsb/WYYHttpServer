@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -43,10 +42,13 @@ public final class WebServer//不让继承
 	private Vector<NonBlockingProcessor> processors;
 	private static Random random = new Random();//用来做负载均衡
 	private Map<SocketChannel, BlockingQueue<Response>> socketChannelResponseMap;//用于存放将要送往socketchannel的数据//这里还有优化的空间，不过我暂时想不到
-
 	/*
 	构造函数
 	 */
+	public synchronized void logger(String s)
+	{
+		System.out.println(s);
+	}
 	public WebServer()
 	{
 		this(DEFAULT_PORT);
@@ -167,14 +169,13 @@ public final class WebServer//不让继承
 		Changes changes = null;
 		while (true)
 		{
-			//System.out.println("start to handle changes ");
+			//System.out.println("start to handle changes "););
 			while (changesQueue.isEmpty() == false)//这样写应该没错吧 先这样 //这样写在流量大的时候造成死循环？
 			{
 				changes = changesQueue.remove();
 				SelectionKey key = changes.socketChannel.keyFor(this.selector);
 				if (key != null && key.isValid())
 				{
-					//System.out.println(key.channel().hashCode()+" change to write mode");
 					key.interestOps(changes.op);
 				}
 			}
@@ -187,6 +188,7 @@ public final class WebServer//不让继承
 				keys.remove();
 				if (key.isValid() == false)
 				{
+					//logger(key.channel().hashCode()+" is not valid");
 					continue;
 				}
 				if (key.isAcceptable())
@@ -209,18 +211,22 @@ public final class WebServer//不让继承
 			}
 		}
 	}
-	private void doCloseChannel(SelectionKey key)//如果要关掉一个channel ，使用这个//有一个问题，已经断开的连接并且没有任何动作该怎么处理
+	private void doCloseChannel(SelectionKey key,Exception e)//如果要关掉一个channel ，使用这个//有一个问题，已经断开的连接并且没有任何动作该怎么处理
 	{
+
 		SocketChannel socketChannel = (SocketChannel) key.channel();
+		//System.out.println();
+		//e.printStackTrace();
+		logger("connection "+socketChannel.hashCode()+" is going to shut down because "+e.getMessage());
 		if(socketChannelResponseMap.containsKey(socketChannel))
 			socketChannelResponseMap.remove(socketChannel);
 		try
 		{
 			socketChannel.close();
 		}
-		catch (Exception e )
+		catch (Exception ee )
 		{
-			e.printStackTrace();
+			ee.printStackTrace();
 			//不知道要干啥
 		}
 		key.cancel();
@@ -233,7 +239,7 @@ public final class WebServer//不让继承
 				.accept();
 		socketChannel.configureBlocking(false);
 		socketChannel.register(selector, SelectionKey.OP_READ);
-		System.out.println("new connection from "+ socketChannel.socket().getRemoteSocketAddress()+" hash code is "+socketChannel.hashCode());
+		logger("new connection from "+ socketChannel.socket().getRemoteSocketAddress()+" hash code is "+socketChannel.hashCode());
 	}
 	private void doRead(SelectionKey key) throws IOException
 	{
@@ -246,29 +252,27 @@ public final class WebServer//不让继承
 			size = socketChannel.read(buffer);
 			if (size == -1)//出现-1应该就是被关掉了
 			{
-				doCloseChannel(key);
+				doCloseChannel(key,new Exception("err read"));
 				return;
 			}
 		}
 		catch (IOException e)//出现异常就关掉
 		{
-			doCloseChannel(key);
+			doCloseChannel(key,e);
 		}
 		int sz = processors.size();
 		int who = random.nextInt(sz);
 		byte bytes[] = new byte[size];
 		System.arraycopy(buffer.array(), 0, bytes, 0, size);
-		//System.out.println("processor "+who+"is going to handle ");
-		//System.out.println(new String(bytes));
+		//logger("read from "+socketChannel.hashCode()+" "+new String(bytes));
 		processors.get(who)
 				.addRequest(socketChannel, bytes);//这里之所以要复制下是因为可能并没有读满，避免错误嘛
 	}
 
 	private void doWrite(SelectionKey key) throws IOException
 	{
-
 		SocketChannel socketChannel = (SocketChannel)key.channel();
-		//System.out.println(socketChannel.hashCode()+"do write ");
+		//logger(socketChannel.hashCode()+" do write ");
 		BlockingQueue<Response> queue = socketChannelResponseMap.get(socketChannel);
 		if(queue == null)
 			return;
@@ -279,33 +283,26 @@ public final class WebServer//不让继承
 			{
 				break;
 			}
-			//System.out.println("get response "+ response.toString());
-			response.getHeaders().put("Connection","keep-alive");
 			ByteBuffer byteBuffer = ByteBuffer.wrap(response.toString().getBytes("UTF8"));
 			socketChannel.write(byteBuffer);
 			if(byteBuffer.remaining()>0)
 			{
 				break;
 			}
+			logger("write to "+socketChannel.hashCode()+"  "+response.getHttpStatusCode());
 			queue.remove();
-
 		}
 		if(queue.isEmpty())
 		{
 			try
 			{
-				//changesQueue.put(new Changes(socketChannel,SelectionKey.OP_READ));
-				socketChannel.keyFor(selector).interestOps(SelectionKey.OP_READ);
+				changesQueue.put(new Changes(socketChannel,SelectionKey.OP_READ));
 			}
 			catch (Exception e )
 			{
 				e.printStackTrace();
 			}
-
 		}
-
-
-
 	}
 
 	public void send(ResponsePackage responsePackage)//不是说你要送，我就送，要打申请的
@@ -321,7 +318,6 @@ public final class WebServer//不让继承
 		try
 		{
 			queue.put(response);
-			//System.out.println(socketChannel.hashCode()+" put success");
 		}
 		catch (InterruptedException e)
 		{

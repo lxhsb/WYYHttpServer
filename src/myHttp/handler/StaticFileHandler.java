@@ -55,7 +55,7 @@ public class StaticFileHandler
 			String line = null ;
 			while ((line =bin.readLine())!=null)
 			{
-				sb.append(line).append("\n");//maybe bug here
+				sb.append(line);//maybe bug here
 			}
 			String fileSuffix = FilenameUtils.getExtension(file.getName());
 			HttpMessageBody httpMessageBody = new HttpMessageBody(MIMEMap.get(fileSuffix),sb.toString());

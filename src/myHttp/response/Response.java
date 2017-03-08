@@ -3,6 +3,7 @@ package myHttp.response;
 import myHttp.body.HttpMessageBody;
 import myHttp.response.code.HttpStatusCode;
 
+import java.nio.channels.SocketChannel;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -85,11 +86,26 @@ public class Response
 				.append("\r\n");
 		for (String key : headers.keySet())
 		{
-			sb.append(key + ":" + headers.get(key)).append("\r\n");
+			sb.append(key + " : " + headers.get(key)).append("\r\n");
 		}
+		sb.append("Connection:keep-alive").append("\r\n");//暂时这样写 always keep alive
 		sb.append("\r\n");
-		sb.append(httpMessageBody.toString()).append("\r\n");
+		sb.append(httpMessageBody.toString());
 		return sb.toString();
+//		String ans = ;
+//		StringBuilder sb = new StringBuilder();
+//		sb.append("HTTP/1.1 200 OK").append("\r\n");
+//	//	String hello = "hello world" + socketChannel.hashCode();
+//	//	String hello = "你好世界" + socketChannel.hashCode();
+//		String hello = httpMessageBody.toString()+socketChannel.hashCode();
+//		sb.append("Connection:keep-alive").append("\r\n");
+//		sb.append("Content-Length:" + hello.length())
+//				.append("\r\n");
+//		sb.append("Content-Type:text/html").append("\r\n");
+//		sb.append("\r\n");
+//		sb.append(hello);
+//		System.out.println(sb.toString());
+//		return sb.toString();
 
 	}
 
