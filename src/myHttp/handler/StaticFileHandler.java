@@ -72,9 +72,5 @@ public class StaticFileHandler
 			fin.close();
 		}
 		return rep ;
-
-
-
-
 	}
 }
