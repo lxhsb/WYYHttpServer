@@ -4,6 +4,8 @@ import myHttp.mypackage.ResponsePackage;
 import myHttp.processor.BlcokingProcessor;
 import myHttp.processor.NonBlockingProcessor;
 import myHttp.response.Response;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,11 +16,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.*;
+
 
 /**
  * Created by wyy on 17-2-13.
@@ -34,6 +34,17 @@ public final class WebServer//不让继承
 	private boolean starting = false;//记录服务器是否正在运行
 	private Object obj = new Object();//用来加锁
 	private ExecutorService executorService;//在同步阻塞的情况下使用 //默认使用cachedthreadpool
+	static {
+		Properties prop = new Properties();
+
+		prop.setProperty("log4j.rootLogger", "DEBUG, CONSOLE");
+		prop.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+		prop.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+		prop.setProperty("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{HH:mm:ss,SSS} [%t] %-5p %C{1} : %m%n");
+
+		PropertyConfigurator.configure(prop);
+	}
+	private Logger loggerx = Logger.getLogger(WebServer.class);
 	/*
 	↓↓↓↓↓↓以下是用来非阻塞所需要的↓↓↓↓↓↓
 	 */
@@ -89,13 +100,14 @@ public final class WebServer//不让继承
 			else
 			{
 				this.selector = Selector.open();
-				System.out.println("init selector finish");
+				//System.out.println("init selector finish");
+				loggerx.info("init selector finish");
 
 				changesQueue = new LinkedBlockingQueue<Changes>();
-				System.out.println("init changesqueue finish");
+				loggerx.info("init changesqueue finish");
 
 				socketChannelResponseMap = new ConcurrentHashMap<>();
-				System.out.println("init map finish");
+				loggerx.info("init map finish");
 
 				ServerSocketChannel serverSocketChannel = ServerSocketChannel
 						.open();
@@ -103,12 +115,12 @@ public final class WebServer//不让继承
 				serverSocketChannel.socket()
 						.bind(new InetSocketAddress(port));//any
 				serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-				System.out.println("init serversocketchannel finish");
+				loggerx.info("init serversocketchannel finish");
 
 				processors = new Vector<>();
 				System.out.println("init processors vector finish");
 				int cpuNum = Runtime.getRuntime().availableProcessors();
-				System.out.println(cpuNum+" cpu num ");
+				loggerx.info(cpuNum+" cpu num ");
 				for (int i = 0; i < 2 * cpuNum; i++)//开2倍应该会比较好吧
 				{
 					NonBlockingProcessor processor = new NonBlockingProcessor(
@@ -132,10 +144,10 @@ public final class WebServer//不让继承
 
 	public void start() throws Exception
 	{
-		System.out.println("start"+(blocking?"阻塞":"非阻塞"));
+		loggerx.info("start"+(blocking?"阻塞":"非阻塞"));
 		starting = true;
 		initServer();
-		System.out.println("init complete");
+		loggerx.info("init complete");
 		if (blocking)
 		{
 			this.startBlockingServer();
@@ -205,7 +217,7 @@ public final class WebServer//不让继承
 				}
 				else//可能不可能出现别的情况呢？ 我也不知道
 				{
-					System.err.println("error in key " + key.hashCode()
+					loggerx.error("error in key " + key.hashCode()
 							+ " with nothing to do");
 				}
 			}
@@ -217,7 +229,7 @@ public final class WebServer//不让继承
 		SocketChannel socketChannel = (SocketChannel) key.channel();
 		//System.out.println();
 		//e.printStackTrace();
-		logger("connection "+socketChannel.hashCode()+" is going to shut down because "+e.getMessage());
+		loggerx.error("connection "+socketChannel.hashCode()+" is going to shut down because "+e.getMessage());
 		if(socketChannelResponseMap.containsKey(socketChannel))
 			socketChannelResponseMap.remove(socketChannel);
 		try
@@ -239,7 +251,7 @@ public final class WebServer//不让继承
 				.accept();
 		socketChannel.configureBlocking(false);
 		socketChannel.register(selector, SelectionKey.OP_READ);
-		logger("new connection from "+ socketChannel.socket().getRemoteSocketAddress()+" hash code is "+socketChannel.hashCode());
+		loggerx.info("new connection from "+ socketChannel.socket().getRemoteSocketAddress()+" hash code is "+socketChannel.hashCode());
 	}
 	private void doRead(SelectionKey key) throws IOException
 	{
@@ -289,7 +301,7 @@ public final class WebServer//不让继承
 			{
 				break;
 			}
-			logger("write to "+socketChannel.hashCode()+"  "+response.getHttpStatusCode());
+			//logger("write to "+socketChannel.hashCode()+"  "+response.getHttpStatusCode());
 			queue.remove();
 		}
 		if(queue.isEmpty())
